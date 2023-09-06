@@ -143,7 +143,7 @@ class TestCustomHeaders(AsgiTestBase, TestBase):
         for span in span_list:
             if span.kind == SpanKind.SERVER:
                 self.assertSpanHasAttributes(span, expected)
-                for key, _ in not_expected.items():
+                for key in not_expected:
                     self.assertNotIn(key, span.attributes)
 
     def test_http_custom_response_headers_in_span_attributes(self):
@@ -188,7 +188,7 @@ class TestCustomHeaders(AsgiTestBase, TestBase):
         }
         for span in span_list:
             if span.kind == SpanKind.SERVER:
-                for key, _ in not_expected.items():
+                for key in not_expected:
                     self.assertNotIn(key, span.attributes)
 
     def test_websocket_custom_request_headers_in_span_attributes(self):
@@ -260,7 +260,7 @@ class TestCustomHeaders(AsgiTestBase, TestBase):
         }
         for span in span_list:
             if span.kind == SpanKind.SERVER:
-                for key, _ in not_expected.items():
+                for key in not_expected:
                     self.assertNotIn(key, span.attributes)
 
     def test_websocket_custom_response_headers_in_span_attributes(self):
@@ -331,5 +331,5 @@ class TestCustomHeaders(AsgiTestBase, TestBase):
         }
         for span in span_list:
             if span.kind == SpanKind.SERVER:
-                for key, _ in not_expected.items():
+                for key in not_expected:
                     self.assertNotIn(key, span.attributes)

@@ -126,10 +126,7 @@ class OpenTelemetryClientInterceptor(
         if context.get_value(_SUPPRESS_INSTRUMENTATION_KEY):
             return invoker(request, metadata)
 
-        if not metadata:
-            mutable_metadata = OrderedDict()
-        else:
-            mutable_metadata = OrderedDict(metadata)
+        mutable_metadata = OrderedDict() if not metadata else OrderedDict(metadata)
         with self._start_span(
             client_info.full_method,
             end_on_exit=False,
@@ -190,11 +187,7 @@ class OpenTelemetryClientInterceptor(
     def _intercept_server_stream(
         self, request_or_iterator, metadata, client_info, invoker
     ):
-        if not metadata:
-            mutable_metadata = OrderedDict()
-        else:
-            mutable_metadata = OrderedDict(metadata)
-
+        mutable_metadata = OrderedDict() if not metadata else OrderedDict(metadata)
         with self._start_span(client_info.full_method) as span:
             inject(mutable_metadata, setter=_carrier_setter)
             metadata = tuple(mutable_metadata.items())

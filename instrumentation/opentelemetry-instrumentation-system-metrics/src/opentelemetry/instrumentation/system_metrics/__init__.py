@@ -115,10 +115,7 @@ class SystemMetricsInstrumentor(BaseInstrumentor):
         config: Optional[Dict[str, List[str]]] = None,
     ):
         super().__init__()
-        if config is None:
-            self._config = _DEFAULT_CONFIG
-        else:
-            self._config = config
+        self._config = _DEFAULT_CONFIG if config is None else config
         self._labels = {} if labels is None else labels
         self._meter = None
         self._python_implementation = python_implementation().lower()

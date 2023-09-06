@@ -303,13 +303,11 @@ class _InstrumentedFalconAPI(getattr(falcon, _instrument_app)):
             ex = arg1
             req = arg2
             resp = arg3
-            params = arg4
         else:
             req = arg1
             resp = arg2
             ex = arg3
-            params = arg4
-
+        params = arg4
         _, exc, _ = exc_info()
         req.env[_ENVIRON_EXC] = exc
 
@@ -470,12 +468,7 @@ class _TraceMiddleware:
                 )
             )
 
-            # Falcon 1 does not support response headers. So
-            # send an empty dict.
-            response_headers = {}
-            if _falcon_version > 1:
-                response_headers = resp.headers
-
+            response_headers = resp.headers if _falcon_version > 1 else {}
             if span.is_recording() and span.kind == trace.SpanKind.SERVER:
                 custom_attributes = (
                     otel_wsgi.collect_custom_response_headers_attributes(
@@ -487,8 +480,7 @@ class _TraceMiddleware:
         except ValueError:
             pass
 
-        propagator = get_global_response_propagator()
-        if propagator:
+        if propagator := get_global_response_propagator():
             propagator.inject(resp, setter=_response_propagation_setter)
 
         if self._response_hook:

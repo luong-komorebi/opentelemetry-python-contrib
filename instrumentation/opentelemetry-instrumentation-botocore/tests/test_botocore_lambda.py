@@ -42,13 +42,12 @@ def get_as_zip_file(file_name, content):
 
 
 def return_headers_lambda_str():
-    pfunc = """
+    return """
 def lambda_handler(event, context):
     print("custom log event")
     headers = event.get('headers', event.get('attributes', {}))
     return headers
 """
-    return pfunc
 
 
 class TestLambdaExtension(TestBase):

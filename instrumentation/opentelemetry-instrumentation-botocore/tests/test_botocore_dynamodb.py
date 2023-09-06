@@ -74,9 +74,7 @@ class TestDynamoDbExtension(TestBase):
                     "Projection": {"ProjectionType": "KEYS_ONLY"},
                 }
             ],
-        }
-        create_args.update(kwargs)
-
+        } | kwargs
         self.client.create_table(**create_args)
 
     def _create_prepared_table(self, **kwargs):

@@ -85,7 +85,7 @@ class TestAioHttpIntegration(TestBase):
 
         async def default_handler(request):
             assert "traceparent" in request.headers
-            return aiohttp.web.Response(status=int(status_code))
+            return aiohttp.web.Response(status=status_code)
 
         async def client_request(server: aiohttp.test_utils.TestServer):
             async with aiohttp.test_utils.TestClient(
@@ -354,9 +354,8 @@ class TestAioHttpClientInstrumentor(TestBase):
         AioHttpClientInstrumentor().uninstrument()
 
     @staticmethod
-    # pylint:disable=unused-argument
     async def default_handler(request):
-        return aiohttp.web.Response(status=int(200))
+        return aiohttp.web.Response(status=200)
 
     @staticmethod
     def get_default_request(url: str = URL):
@@ -371,9 +370,7 @@ class TestAioHttpClientInstrumentor(TestBase):
         self.assertEqual(num_spans, len(finished_spans))
         if num_spans == 0:
             return None
-        if num_spans == 1:
-            return finished_spans[0]
-        return finished_spans
+        return finished_spans[0] if num_spans == 1 else finished_spans
 
     def test_instrument(self):
         host, port = run_with_test_server(

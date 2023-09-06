@@ -111,13 +111,12 @@ def check_redis_connection():
 
 
 def new_mssql_connection() -> pyodbc.Connection:
-    connection = pyodbc.connect(
+    return pyodbc.connect(
         f"DRIVER={{ODBC Driver 17 for SQL Server}};SERVER={MSSQL_HOST},"
         f"{MSSQL_PORT};DATABASE=master;UID={MSSQL_USER};"
         f"PWD={MSSQL_PASSWORD}",
         autocommit=True,
     )
-    return connection
 
 
 @retryable

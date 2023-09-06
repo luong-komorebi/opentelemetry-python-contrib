@@ -334,7 +334,7 @@ class TestCustomRequestResponseHeaders(InstrumentationTest, WsgiTestBase):
         }
         self.assertEqual(span.kind, SpanKind.SERVER)
         self.assertSpanHasAttributes(span, expected)
-        for key, _ in not_expected.items():
+        for key in not_expected:
             self.assertNotIn(key, span.attributes)
 
     def test_custom_request_header_not_added_in_internal_span(self):
@@ -354,7 +354,7 @@ class TestCustomRequestResponseHeaders(InstrumentationTest, WsgiTestBase):
                 ),
             }
             self.assertEqual(span.kind, SpanKind.INTERNAL)
-            for key, _ in not_expected.items():
+            for key in not_expected:
                 self.assertNotIn(key, span.attributes)
 
     def test_custom_response_header_added_in_server_span(self):
@@ -382,7 +382,7 @@ class TestCustomRequestResponseHeaders(InstrumentationTest, WsgiTestBase):
         }
         self.assertEqual(span.kind, SpanKind.SERVER)
         self.assertSpanHasAttributes(span, expected)
-        for key, _ in not_expected.items():
+        for key in not_expected:
             self.assertNotIn(key, span.attributes)
 
     def test_custom_response_header_not_added_in_internal_span(self):
@@ -401,7 +401,7 @@ class TestCustomRequestResponseHeaders(InstrumentationTest, WsgiTestBase):
                 ),
             }
             self.assertEqual(span.kind, SpanKind.INTERNAL)
-            for key, _ in not_expected.items():
+            for key in not_expected:
                 self.assertNotIn(key, span.attributes)
 
 

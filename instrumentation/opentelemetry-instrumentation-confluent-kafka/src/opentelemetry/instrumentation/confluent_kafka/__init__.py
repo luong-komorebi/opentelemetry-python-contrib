@@ -220,9 +220,7 @@ class ConfluentKafkaInstrumentor(BaseInstrumentor):
             __name__, __version__, tracer_provider=tracer_provider
         )
 
-        manual_producer = ProxiedProducer(producer, tracer)
-
-        return manual_producer
+        return ProxiedProducer(producer, tracer)
 
     @staticmethod
     def instrument_consumer(
@@ -232,9 +230,7 @@ class ConfluentKafkaInstrumentor(BaseInstrumentor):
             __name__, __version__, tracer_provider=tracer_provider
         )
 
-        manual_consumer = ProxiedConsumer(consumer, tracer)
-
-        return manual_consumer
+        return ProxiedConsumer(consumer, tracer)
 
     @staticmethod
     def uninstrument_producer(producer: Producer) -> Producer:
@@ -332,17 +328,19 @@ class ConfluentKafkaInstrumentor(BaseInstrumentor):
             instance._current_consume_span = None
 
         with tracer.start_as_current_span(
-            "recv", end_on_exit=True, kind=trace.SpanKind.CONSUMER
-        ):
+                "recv", end_on_exit=True, kind=trace.SpanKind.CONSUMER
+            ):
             record = func(*args, **kwargs)
             if record:
                 links = []
-                ctx = propagate.extract(record.headers(), getter=_kafka_getter)
-                if ctx:
-                    for item in ctx.values():
-                        if hasattr(item, "get_span_context"):
-                            links.append(Link(context=item.get_span_context()))
-
+                if ctx := propagate.extract(
+                    record.headers(), getter=_kafka_getter
+                ):
+                    links.extend(
+                        Link(context=item.get_span_context())
+                        for item in ctx.values()
+                        if hasattr(item, "get_span_context")
+                    )
                 instance._current_consume_span = tracer.start_span(
                     name=f"{record.topic()} process",
                     links=links,

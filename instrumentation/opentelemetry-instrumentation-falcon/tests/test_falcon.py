@@ -460,7 +460,7 @@ class TestCustomRequestResponseHeaders(TestFalconBase):
 
         self.assertEqual(span.kind, trace.SpanKind.SERVER)
         self.assertSpanHasAttributes(span, expected)
-        for key, _ in not_expected.items():
+        for key in not_expected:
             self.assertNotIn(key, span.attributes)
 
     def test_custom_request_header_not_added_in_internal_span(self):
@@ -492,7 +492,7 @@ class TestCustomRequestResponseHeaders(TestFalconBase):
                 "http.request.header.my_secret_header": ("[REDACTED]",),
             }
             self.assertEqual(span.kind, trace.SpanKind.INTERNAL)
-            for key, _ in not_expected.items():
+            for key in not_expected:
                 self.assertNotIn(key, span.attributes)
 
     @pytest.mark.skipif(
@@ -527,7 +527,7 @@ class TestCustomRequestResponseHeaders(TestFalconBase):
         }
         self.assertEqual(span.kind, trace.SpanKind.SERVER)
         self.assertSpanHasAttributes(span, expected)
-        for key, _ in not_expected.items():
+        for key in not_expected:
             self.assertNotIn(key, span.attributes)
 
     @pytest.mark.skipif(
@@ -560,5 +560,5 @@ class TestCustomRequestResponseHeaders(TestFalconBase):
                 "http.response.header.my_secret_header": ("[REDACTED]",),
             }
             self.assertEqual(span.kind, trace.SpanKind.INTERNAL)
-            for key, _ in not_expected.items():
+            for key in not_expected:
                 self.assertNotIn(key, span.attributes)

@@ -26,8 +26,8 @@ class TestURLLib3InstrumentorWithRealSocket(HttpTestBase, TestBase):
         super().setUp()
         self.assert_ip = self.server.server_address[0]
         self.http_host = ":".join(map(str, self.server.server_address[:2]))
-        self.http_url_base = "http://" + self.http_host
-        self.http_url = self.http_url_base + "/status/200"
+        self.http_url_base = f"http://{self.http_host}"
+        self.http_url = f"{self.http_url_base}/status/200"
         HttpClientInstrumentor().instrument()
         RequestsInstrumentor().instrument()
 
@@ -62,9 +62,7 @@ class TestURLLib3InstrumentorWithRealSocket(HttpTestBase, TestBase):
         if num_spans == 0:
             return None
         self.memory_exporter.clear()
-        if num_spans == 1:
-            return span_list[0]
-        return span_list
+        return span_list[0] if num_spans == 1 else span_list
 
     def assert_success_span(self, response: requests.Response):
         self.assertEqual("Hello!", response.text)

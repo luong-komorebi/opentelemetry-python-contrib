@@ -82,16 +82,16 @@ def _child_to_tree(child: Tree, span: ReadableSpan):
 
 def _add_status(child: Tree, span: ReadableSpan):
     if not span.status.is_unset:
-        if not span.status.is_ok:
+        if span.status.is_ok:
             child.add(
                 Text.from_markup(
-                    f"[bold cyan]Status :[/bold cyan] [red]{span.status.status_code}[/red]"
+                    f"[bold cyan]Status :[/bold cyan] {span.status.status_code}"
                 )
             )
         else:
             child.add(
                 Text.from_markup(
-                    f"[bold cyan]Status :[/bold cyan] {span.status.status_code}"
+                    f"[bold cyan]Status :[/bold cyan] [red]{span.status.status_code}[/red]"
                 )
             )
     if span.status.description:
@@ -184,7 +184,7 @@ class RichConsoleSpanExporter(SpanExporter):
                     parents[span.context.span_id] = child
                     _child_to_tree(child, span)
                     spans.remove(span)
-                elif span.parent and span.parent.span_id in parents:
+                elif span.parent.span_id in parents:
                     child = parents[span.parent.span_id].add(
                         label=Text.from_markup(
                             f"[blue][{_ns_to_time(span.start_time)}][/blue] [bold]{span.name}[/bold], span {opentelemetry.trace.format_span_id(span.context.span_id)}"

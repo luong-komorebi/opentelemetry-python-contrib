@@ -103,9 +103,7 @@ class KafkaContextGetter(textmap.Getter[textmap.CarrierT]):
         return None
 
     def keys(self, carrier: textmap.CarrierT) -> List[str]:
-        if carrier is None:
-            return []
-        return [key for (key, value) in carrier]
+        return [] if carrier is None else [key for (key, value) in carrier]
 
 
 class KafkaContextSetter(textmap.Setter[textmap.CarrierT]):

@@ -74,12 +74,12 @@ async def _async_response_hook(
 
 def _request_hook(span: "Span", request: "RequestInfo"):
     url = httpx.URL(request[1])
-    span.update_name("GET" + str(url))
+    span.update_name(f"GET{str(url)}")
 
 
 async def _async_request_hook(span: "Span", request: "RequestInfo"):
     url = httpx.URL(request[1])
-    span.update_name("GET" + str(url))
+    span.update_name(f"GET{str(url)}")
 
 
 def _no_update_request_hook(span: "Span", request: "RequestInfo"):
@@ -122,9 +122,7 @@ class BaseTestCases:
             self.assertEqual(num_spans, len(span_list))
             if num_spans == 0:
                 return None
-            if num_spans == 1:
-                return span_list[0]
-            return span_list
+            return span_list[0] if num_spans == 1 else span_list
 
         @abc.abstractmethod
         def perform_request(
@@ -339,7 +337,7 @@ class BaseTestCases:
 
             self.assertEqual(result.text, "Hello!")
             span = self.assert_span()
-            self.assertEqual(span.name, "GET" + self.URL)
+            self.assertEqual(span.name, f"GET{self.URL}")
 
         def test_request_hook_no_span_change(self):
             transport = self.create_transport(
@@ -431,7 +429,7 @@ class BaseTestCases:
 
             self.assertEqual(result.text, "Hello!")
             span = self.assert_span()
-            self.assertEqual(span.name, "GET" + self.URL)
+            self.assertEqual(span.name, f"GET{self.URL}")
             HTTPXClientInstrumentor().uninstrument()
 
         def test_request_hook_no_span_update(self):
@@ -543,13 +541,12 @@ class TestSyncIntegration(BaseTestCases.BaseManualTest):
         response_hook: typing.Optional["ResponseHook"] = None,
     ):
         transport = httpx.HTTPTransport()
-        telemetry_transport = SyncOpenTelemetryTransport(
+        return SyncOpenTelemetryTransport(
             transport,
             tracer_provider=tracer_provider,
             request_hook=request_hook,
             response_hook=response_hook,
         )
-        return telemetry_transport
 
     def create_client(
         self,
@@ -586,13 +583,12 @@ class TestAsyncIntegration(BaseTestCases.BaseManualTest):
         response_hook: typing.Optional["AsyncResponseHook"] = None,
     ):
         transport = httpx.AsyncHTTPTransport()
-        telemetry_transport = AsyncOpenTelemetryTransport(
+        return AsyncOpenTelemetryTransport(
             transport,
             tracer_provider=tracer_provider,
             request_hook=request_hook,
             response_hook=response_hook,
         )
-        return telemetry_transport
 
     def create_client(
         self,

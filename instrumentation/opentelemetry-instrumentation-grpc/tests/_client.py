@@ -35,10 +35,9 @@ def client_streaming_method(stub, error=False):
     # create a generator
     def request_messages():
         for _ in range(5):
-            request = Request(
+            yield Request(
                 client_id=CLIENT_ID, request_data="error" if error else "data"
             )
-            yield request
 
     stub.ClientStreamingMethod(request_messages())
 
@@ -54,10 +53,9 @@ def server_streaming_method(stub, error=False):
 def bidirectional_streaming_method(stub, error=False):
     def request_messages():
         for _ in range(5):
-            request = Request(
+            yield Request(
                 client_id=CLIENT_ID, request_data="error" if error else "data"
             )
-            yield request
 
     response_iterator = stub.BidirectionalStreamingMethod(request_messages())
 

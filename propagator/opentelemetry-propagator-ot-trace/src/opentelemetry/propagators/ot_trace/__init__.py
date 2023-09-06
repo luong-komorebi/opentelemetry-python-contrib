@@ -74,11 +74,7 @@ class OTTracePropagator(TextMapPropagator):
             getter.get(carrier, OT_SAMPLED_HEADER)
         )
 
-        if sampled == "true":
-            traceflags = TraceFlags.SAMPLED
-        else:
-            traceflags = TraceFlags.DEFAULT
-
+        traceflags = TraceFlags.SAMPLED if sampled == "true" else TraceFlags.DEFAULT
         if traceid != INVALID_TRACE_ID and spanid != INVALID_SPAN_ID:
             context = set_span_in_context(
                 NonRecordingSpan(
@@ -170,9 +166,7 @@ def _extract_first_element(
     items: Iterable[CarrierT],
     default: Any = None,
 ) -> Optional[CarrierT]:
-    if items is None:
-        return default
-    return next(iter(items), None)
+    return default if items is None else next(iter(items), None)
 
 
 def _extract_identifier(

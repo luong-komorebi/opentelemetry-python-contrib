@@ -108,9 +108,7 @@ class RequestsIntegrationTestBase(abc.ABC):
         self.assertEqual(num_spans, len(span_list))
         if num_spans == 0:
             return None
-        if num_spans == 1:
-            return span_list[0]
-        return span_list
+        return span_list[0] if num_spans == 1 else span_list
 
     @staticmethod
     @abc.abstractmethod
@@ -303,10 +301,7 @@ class RequestsIntegrationTestBase(abc.ABC):
             span = self.assert_span()
 
             headers_ = dict(httpretty.last_request().headers)
-            headers = {}
-            for k, v in headers_.items():
-                headers[k.lower()] = v
-
+            headers = {k.lower(): v for k, v in headers_.items()}
             self.assertIn(MockTextMapPropagator.TRACE_ID_KEY, headers)
             self.assertEqual(
                 str(span.get_span_context().trace_id),

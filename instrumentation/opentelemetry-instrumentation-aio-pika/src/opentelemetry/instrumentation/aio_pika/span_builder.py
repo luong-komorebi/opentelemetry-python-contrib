@@ -81,10 +81,11 @@ class SpanBuilder:
             self._attributes[SpanAttributes.MESSAGING_OPERATION] = self._operation.value
         else:
             self._attributes[SpanAttributes.MESSAGING_TEMP_DESTINATION] = True
-        span = self._tracer.start_span(
-            self._generate_span_name(), kind=self._kind, attributes=self._attributes
+        return self._tracer.start_span(
+            self._generate_span_name(),
+            kind=self._kind,
+            attributes=self._attributes,
         )
-        return span
 
     def _generate_span_name(self) -> str:
         operation_value = self._operation.value if self._operation else "send"

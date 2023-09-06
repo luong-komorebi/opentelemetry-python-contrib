@@ -178,11 +178,7 @@ def _instrument(
 
     @functools.wraps(opener_open)
     def instrumented_open(opener, fullurl, data=None, timeout=None):
-        if isinstance(fullurl, str):
-            request_ = Request(fullurl, data)
-        else:
-            request_ = fullurl
-
+        request_ = Request(fullurl, data) if isinstance(fullurl, str) else fullurl
         def get_or_create_headers():
             return getattr(request_, "headers", {})
 
@@ -293,7 +289,7 @@ def _uninstrument_from(instr_root, restore_as_bound_func=False):
 
 
 def _create_client_histograms(meter) -> Dict[str, Histogram]:
-    histograms = {
+    return {
         MetricInstruments.HTTP_CLIENT_DURATION: meter.create_histogram(
             name=MetricInstruments.HTTP_CLIENT_DURATION,
             unit="ms",
@@ -310,8 +306,6 @@ def _create_client_histograms(meter) -> Dict[str, Histogram]:
             description="measures the size of HTTP response messages (compressed)",
         ),
     }
-
-    return histograms
 
 
 def _record_histograms(

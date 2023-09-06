@@ -30,7 +30,7 @@ from .fixtures import pipeline, random_input
 def assert_instrumented(base_estimators):
     for _, estimator in base_estimators.items():
         for method_name in DEFAULT_METHODS:
-            original_method_name = "_otel_original_" + method_name
+            original_method_name = f"_otel_original_{method_name}"
             if issubclass(estimator, tuple(DEFAULT_EXCLUDE_CLASSES)):
                 assert not hasattr(estimator, original_method_name)
                 continue
@@ -50,7 +50,7 @@ def assert_instrumented(base_estimators):
 def assert_uninstrumented(base_estimators):
     for _, estimator in base_estimators.items():
         for method_name in DEFAULT_METHODS:
-            original_method_name = "_otel_original_" + method_name
+            original_method_name = f"_otel_original_{method_name}"
             if issubclass(estimator, tuple(DEFAULT_EXCLUDE_CLASSES)):
                 assert not hasattr(estimator, original_method_name)
                 continue

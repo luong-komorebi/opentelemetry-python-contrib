@@ -30,12 +30,7 @@ _GET_METHOD = "GET"
 
 
 def _aws_http_request(method, path, headers):
-    with urlopen(
-        Request(
-            "http://169.254.169.254" + path, headers=headers, method=method
-        ),
-        timeout=5,
-    ) as response:
+    with urlopen(Request(f"http://169.254.169.254{path}", headers=headers, method=method), timeout=5) as response:
         return response.read().decode("utf-8")
 
 

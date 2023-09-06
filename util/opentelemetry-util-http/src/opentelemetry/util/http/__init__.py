@@ -86,8 +86,7 @@ class SanitizeValue:
 
         if header_regexes:
             header_regexes_compiled = re_compile(
-                "|".join("^" + i + "$" for i in header_regexes),
-                RE_IGNORECASE,
+                "|".join(f"^{i}$" for i in header_regexes), RE_IGNORECASE
             )
 
             for header_name in list(
@@ -96,8 +95,7 @@ class SanitizeValue:
                     headers.keys(),
                 )
             ):
-                header_values = headers.get(header_name)
-                if header_values:
+                if header_values := headers.get(header_name):
                     key = normalize_function(header_name.lower())
                     values[key] = [
                         self.sanitize_header_value(
@@ -198,16 +196,14 @@ def get_custom_headers(env_var: str) -> List[str]:
 
 
 def _parse_active_request_count_attrs(req_attrs):
-    active_requests_count_attrs = {
+    return {
         key: req_attrs[key]
         for key in _active_requests_count_attrs.intersection(req_attrs.keys())
     }
-    return active_requests_count_attrs
 
 
 def _parse_duration_attrs(req_attrs):
-    duration_attrs = {
+    return {
         key: req_attrs[key]
         for key in _duration_attrs.intersection(req_attrs.keys())
     }
-    return duration_attrs

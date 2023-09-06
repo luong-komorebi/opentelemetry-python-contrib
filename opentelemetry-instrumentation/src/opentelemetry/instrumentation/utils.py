@@ -37,7 +37,7 @@ def extract_attributes_from_object(
 ) -> Dict[str, str]:
     extracted = {}
     if existing:
-        extracted.update(existing)
+        extracted |= existing
     for attr in attributes:
         value = getattr(obj, attr, None)
         if value is not None:
@@ -65,9 +65,7 @@ def http_status_to_status_code(
         return StatusCode.UNSET
     if status <= 399 and allow_redirect:
         return StatusCode.UNSET
-    if status <= 499 and server_span:
-        return StatusCode.UNSET
-    return StatusCode.ERROR
+    return StatusCode.UNSET if status <= 499 and server_span else StatusCode.ERROR
 
 
 def unwrap(obj, attr: str):

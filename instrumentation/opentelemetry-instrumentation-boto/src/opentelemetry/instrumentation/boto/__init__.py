@@ -61,13 +61,10 @@ SERVICE_PARAMS_BLOCK_LIST = {"s3": ["params.Body"]}
 
 
 def _get_instance_region_name(instance):
-    region = getattr(instance, "region", None)
-
-    if not region:
+    if region := getattr(instance, "region", None):
+        return region.split(":")[1] if isinstance(region, str) else region.name
+    else:
         return None
-    if isinstance(region, str):
-        return region.split(":")[1]
-    return region.name
 
 
 class BotoInstrumentor(BaseInstrumentor):
@@ -225,10 +222,7 @@ def add_span_arg_tags(span, aws_service, args, args_names, args_traced):
         """Truncate values which are bytes and greater than `max_len`.
         Useful for parameters like "Body" in `put_object` operations.
         """
-        if isinstance(value, bytes) and len(value) > max_len:
-            return b"..."
-
-        return value
+        return b"..." if isinstance(value, bytes) and len(value) > max_len else value
 
     if not span.is_recording():
         return

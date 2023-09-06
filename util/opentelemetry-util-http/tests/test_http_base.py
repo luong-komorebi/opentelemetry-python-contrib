@@ -45,9 +45,7 @@ class TestHttpBase(TestBase, HttpTestBase):
         self.assertEqual(num_spans, len(span_list))
         if num_spans == 0:
             return None
-        if num_spans == 1:
-            return span_list[0]
-        return span_list
+        return span_list[0] if num_spans == 1 else span_list
 
     def test_basic(self):
         resp, body = self.perform_request()

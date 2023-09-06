@@ -101,9 +101,7 @@ class RequestsIntegrationTestBase(abc.ABC):
         self.assertEqual(num_spans, len(span_list))
         if num_spans == 0:
             return None
-        if num_spans == 1:
-            return span_list[0]
-        return span_list
+        return span_list[0] if num_spans == 1 else span_list
 
     @staticmethod
     @abc.abstractmethod
@@ -455,9 +453,7 @@ class RequestsIntegrationTestBase(abc.ABC):
 class TestRequestsIntegration(RequestsIntegrationTestBase, TestBase):
     @staticmethod
     def perform_request(url: str, session: requests.Session = None):
-        if session is None:
-            return requests.get(url)
-        return session.get(url)
+        return requests.get(url) if session is None else session.get(url)
 
     def test_credential_removal(self):
         new_url = "http://username:password@httpbin.org/status/200"

@@ -327,11 +327,7 @@ class AwsXRayPropagatorTest(unittest.TestCase):
 
         AwsXRayPropagatorTest.XRAY_PROPAGATOR.inject({}, setter=mock_setter)
 
-        inject_fields = set()
-
-        for call in mock_setter.mock_calls:
-            inject_fields.add(call[1][1])
-
+        inject_fields = {call[1][1] for call in mock_setter.mock_calls}
         self.assertEqual(
             AwsXRayPropagatorTest.XRAY_PROPAGATOR.fields, inject_fields
         )

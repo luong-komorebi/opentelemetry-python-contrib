@@ -210,7 +210,7 @@ class CommandTracer(monitoring.CommandListener):
         command_attribute = COMMAND_TO_ATTRIBUTE_MAPPING.get(command_name)
         command = event.command.get(command_attribute)
         if command and self.capture_statement:
-            statement += " " + str(command)
+            statement += f" {str(command)}"
         return statement
 
 

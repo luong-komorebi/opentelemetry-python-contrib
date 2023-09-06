@@ -30,11 +30,11 @@ def _normalize_request(args, kwargs):
     if not isinstance(req, str):
         return (args, kwargs)
 
-    new_kwargs = {}
-    for param in ("callback", "raise_error"):
-        if param in kwargs:
-            new_kwargs[param] = kwargs.pop(param)
-
+    new_kwargs = {
+        param: kwargs.pop(param)
+        for param in ("callback", "raise_error")
+        if param in kwargs
+    }
     req = HTTPRequest(req, **kwargs)
     new_args = [req]
     new_args.extend(args[1:])
@@ -143,10 +143,8 @@ def _finish_tracing_callback(
 
 
 def _create_metric_attributes(response):
-    metric_attributes = {
+    return {
         SpanAttributes.HTTP_STATUS_CODE: response.code,
         SpanAttributes.HTTP_URL: remove_url_credentials(response.request.url),
         SpanAttributes.HTTP_METHOD: response.request.method,
     }
-
-    return metric_attributes

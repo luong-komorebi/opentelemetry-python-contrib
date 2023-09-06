@@ -64,10 +64,7 @@ class Boto3SQSGetter(Getter[CarrierT]):
             return None
 
         value = msg_attr.get("StringValue")
-        if value is None:
-            return None
-
-        return [value]
+        return None if value is None else [value]
 
     def keys(self, carrier: CarrierT) -> List[str]:
         return list(carrier.keys())
@@ -134,7 +131,7 @@ class Boto3SQSInstrumentor(BaseInstrumentor):
             index = 0
             while index < len(self):
                 yield self[index]
-                index = index + 1
+                index += 1
 
     def instrumentation_dependencies(self) -> Collection[str]:
         return _instruments
@@ -171,10 +168,9 @@ class Boto3SQSInstrumentor(BaseInstrumentor):
 
     @staticmethod
     def _safe_end_processing_span(receipt_handle: str) -> None:
-        started_span: Span = Boto3SQSInstrumentor.received_messages_spans.pop(
+        if started_span := Boto3SQSInstrumentor.received_messages_spans.pop(
             receipt_handle, None
-        )
-        if started_span:
+        ):
             if (
                 Boto3SQSInstrumentor.current_span_related_to_token
                 == started_span

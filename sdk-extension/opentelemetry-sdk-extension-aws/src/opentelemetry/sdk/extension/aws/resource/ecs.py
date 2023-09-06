@@ -48,9 +48,9 @@ class AwsEcsResourceDetector(ResourceDetector):
             container_id = ""
             try:
                 with open(
-                    "/proc/self/cgroup", encoding="utf8"
-                ) as container_info_file:
-                    for raw_line in container_info_file.readlines():
+                                "/proc/self/cgroup", encoding="utf8"
+                            ) as container_info_file:
+                    for raw_line in container_info_file:
                         line = raw_line.strip()
                         # Subsequent IDs should be the same, exit if found one
                         if len(line) > _CONTAINER_ID_LENGTH:
@@ -84,7 +84,7 @@ class AwsEcsResourceDetector(ResourceDetector):
             )
 
             task_arn = metadata_task["TaskARN"]
-            base_arn = task_arn[0 : task_arn.rindex(":")]  # noqa
+            base_arn = task_arn[:task_arn.rindex(":")]
             cluster: str = metadata_task["Cluster"]
             cluster_arn = (
                 cluster
@@ -114,7 +114,6 @@ class AwsEcsResourceDetector(ResourceDetector):
                     }
                 )
             )
-        # pylint: disable=broad-except
         except Exception as exception:
             if self.raise_on_error:
                 raise exception
@@ -125,8 +124,7 @@ class AwsEcsResourceDetector(ResourceDetector):
 
 def _get_logs_resource(metadata_container):
     if metadata_container.get("LogDriver") == "awslogs":
-        log_options = metadata_container.get("LogOptions")
-        if log_options:
+        if log_options := metadata_container.get("LogOptions"):
             logs_region = log_options.get("awslogs-region")
             logs_group_name = log_options.get("awslogs-group")
             logs_stream_name = log_options.get("awslogs-stream")
@@ -134,10 +132,9 @@ def _get_logs_resource(metadata_container):
             container_arn = metadata_container["ContainerARN"]
 
             if not logs_region:
-                aws_region_match = re.match(
+                if aws_region_match := re.match(
                     r"arn:aws:ecs:([^:]+):.*", container_arn
-                )
-                if aws_region_match:
+                ):
                     logs_region = aws_region_match.group(1)
 
                 else:
@@ -146,10 +143,9 @@ def _get_logs_resource(metadata_container):
             # We need to retrieve the account ID from some other ARN to create the
             # log-group and log-stream ARNs
             aws_account = None
-            aws_account_match = re.match(
+            if aws_account_match := re.match(
                 r"arn:aws:ecs:[^:]+:([^:]+):.*", container_arn
-            )
-            if aws_account_match:
+            ):
                 aws_account = aws_account_match.group(1)
 
             logs_group_arn = None

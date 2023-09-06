@@ -51,8 +51,7 @@ class TornadoTest(AsyncHTTPTestCase, TestBase):
     # pylint:disable=no-self-use
     def get_app(self):
         tracer = trace.get_tracer(__name__)
-        app = make_app(tracer)
-        return app
+        return make_app(tracer)
 
     def setUp(self):
         super().setUp()
@@ -135,7 +134,7 @@ class TestTornadoInstrumentation(TornadoTest, WsgiTestBase):
         self.assertEqual(manual.parent, server.context)
         self.assertEqual(manual.context.trace_id, client.context.trace_id)
 
-        self.assertEqual(server.name, "MainHandler." + method.lower())
+        self.assertEqual(server.name, f"MainHandler.{method.lower()}")
         self.assertTrue(server.parent.is_remote)
         self.assertNotEqual(server.parent, client.context)
         self.assertEqual(server.parent.span_id, client.context.span_id)
@@ -196,7 +195,7 @@ class TestTornadoInstrumentation(TornadoTest, WsgiTestBase):
         self.assertEqual(len(spans), 5)
 
         client = spans.by_name("GET")
-        server = spans.by_name(handler_name + ".get")
+        server = spans.by_name(f"{handler_name}.get")
         sub_wrapper = spans.by_name("sub-task-wrapper")
 
         sub2 = spans.by_name("sub-task-2")
@@ -213,7 +212,7 @@ class TestTornadoInstrumentation(TornadoTest, WsgiTestBase):
         self.assertEqual(sub_wrapper.parent, server.context)
         self.assertEqual(sub_wrapper.context.trace_id, client.context.trace_id)
 
-        self.assertEqual(server.name, handler_name + ".get")
+        self.assertEqual(server.name, f"{handler_name}.get")
         self.assertTrue(server.parent.is_remote)
         self.assertNotEqual(server.parent, client.context)
         self.assertEqual(server.parent.span_id, client.context.span_id)
@@ -739,7 +738,7 @@ class TestTornadoCustomRequestResponseHeadersNotAddedWithInternalSpan(
             ),
         }
         self.assertEqual(tornado_span.kind, trace.SpanKind.INTERNAL)
-        for key, _ in not_expected.items():
+        for key in not_expected:
             self.assertNotIn(key, tornado_span.attributes)
 
     @patch.dict(
@@ -764,5 +763,5 @@ class TestTornadoCustomRequestResponseHeadersNotAddedWithInternalSpan(
             ),
         }
         self.assertEqual(tornado_span.kind, trace.SpanKind.INTERNAL)
-        for key, _ in not_expected.items():
+        for key in not_expected:
             self.assertNotIn(key, tornado_span.attributes)

@@ -199,7 +199,7 @@ def _wrap_perform_request(
                 doc_id = match.group(1)
             match = _regex_search_url.search(url)
             if match is not None:
-                op_name = span_name_prefix + "/<target>/_search"
+                op_name = f"{span_name_prefix}/<target>/_search"
                 search_target = match.group(1)
 
         params = kwargs.get("params", {})

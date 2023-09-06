@@ -45,10 +45,10 @@ def _wrap_rpc_behavior(handler, continuation):
     if handler.request_streaming and handler.response_streaming:
         behavior_fn = handler.stream_stream
         handler_factory = grpc.stream_stream_rpc_method_handler
-    elif handler.request_streaming and not handler.response_streaming:
+    elif handler.request_streaming:
         behavior_fn = handler.stream_unary
         handler_factory = grpc.stream_unary_rpc_method_handler
-    elif not handler.request_streaming and handler.response_streaming:
+    elif handler.response_streaming:
         behavior_fn = handler.unary_stream
         handler_factory = grpc.unary_stream_rpc_method_handler
     else:
@@ -206,8 +206,7 @@ class OpenTelemetryServerInterceptor(grpc.ServerInterceptor):
 
     @contextmanager
     def _set_remote_context(self, servicer_context):
-        metadata = servicer_context.invocation_metadata()
-        if metadata:
+        if metadata := servicer_context.invocation_metadata():
             md_dict = {md.key: md.value for md in metadata}
             ctx = extract(md_dict)
             token = attach(ctx)
@@ -232,12 +231,10 @@ class OpenTelemetryServerInterceptor(grpc.ServerInterceptor):
             service, method = handler_call_details.method.lstrip("/").split(
                 "/", 1
             )
-            attributes.update(
-                {
-                    SpanAttributes.RPC_METHOD: method,
-                    SpanAttributes.RPC_SERVICE: service,
-                }
-            )
+            attributes |= {
+                SpanAttributes.RPC_METHOD: method,
+                SpanAttributes.RPC_SERVICE: service,
+            }
 
         # add some attributes from the metadata
         metadata = dict(context.invocation_metadata())
@@ -255,12 +252,10 @@ class OpenTelemetryServerInterceptor(grpc.ServerInterceptor):
                 context.peer().split(",")[0].split(":", 1)[1].rsplit(":", 1)
             )
             ip = unquote(ip)
-            attributes.update(
-                {
-                    SpanAttributes.NET_PEER_IP: ip,
-                    SpanAttributes.NET_PEER_PORT: port,
-                }
-            )
+            attributes |= {
+                SpanAttributes.NET_PEER_IP: ip,
+                SpanAttributes.NET_PEER_PORT: port,
+            }
 
             # other telemetry sources add this, so we will too
             if ip in ("[::1]", "127.0.0.1"):

@@ -235,22 +235,17 @@ class TortoiseORMInstrumentor(BaseInstrumentor):
                 span_attributes[
                     SpanAttributes.DB_SYSTEM
                 ] = DbSystemValues.MYSQL.value
-        dbname = getattr(connection, "filename", None)
-        if dbname:
+        if dbname := getattr(connection, "filename", None):
             span_attributes[SpanAttributes.DB_NAME] = dbname
-        dbname = getattr(connection, "database", None)
-        if dbname:
+        if dbname := getattr(connection, "database", None):
             span_attributes[SpanAttributes.DB_NAME] = dbname
         if query is not None:
             span_attributes[SpanAttributes.DB_STATEMENT] = query
-        user = getattr(connection, "user", None)
-        if user:
+        if user := getattr(connection, "user", None):
             span_attributes[SpanAttributes.DB_USER] = user
-        host = getattr(connection, "host", None)
-        if host:
+        if host := getattr(connection, "host", None):
             span_attributes[SpanAttributes.NET_PEER_NAME] = host
-        port = getattr(connection, "port", None)
-        if port:
+        if port := getattr(connection, "port", None):
             span_attributes[SpanAttributes.NET_PEER_PORT] = port
 
         if self.capture_parameters:
@@ -291,20 +286,19 @@ class TortoiseORMInstrumentor(BaseInstrumentor):
         name = f"pydantic.{func.__name__}"
 
         with self._tracer.start_as_current_span(
-            name,
-            kind=SpanKind.INTERNAL,
-        ) as span:
+                name,
+                kind=SpanKind.INTERNAL,
+            ) as span:
             if span.is_recording():
                 span_attributes = {}
 
                 model_config = getattr(modelcls, "Config", None)
                 if model_config:
-                    model_title = getattr(
+                    if model_title := getattr(
                         modelcls.Config,
                         "title",
                         modelcls.__name__,
-                    )
-                    if model_title:
+                    ):
                         span_attributes["pydantic.model"] = model_title
 
                 for attribute, value in span_attributes.items():

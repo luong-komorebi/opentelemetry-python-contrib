@@ -517,7 +517,7 @@ class TestMiddlewareAsgiWithCustomHeaders(SimpleTestCase, TestBase):
 
         span = spans[0]
         self.assertEqual(span.kind, SpanKind.SERVER)
-        for key, _ in not_expected.items():
+        for key in not_expected:
             self.assertNotIn(key, span.attributes)
         self.memory_exporter.clear()
 
@@ -558,6 +558,6 @@ class TestMiddlewareAsgiWithCustomHeaders(SimpleTestCase, TestBase):
 
         span = spans[0]
         self.assertEqual(span.kind, SpanKind.SERVER)
-        for key, _ in not_expected.items():
+        for key in not_expected:
             self.assertNotIn(key, span.attributes)
         self.memory_exporter.clear()

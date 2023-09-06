@@ -282,7 +282,7 @@ class TornadoInstrumentor(BaseInstrumentor):
 
 
 def _create_server_histograms(meter) -> Dict[str, Histogram]:
-    histograms = {
+    return {
         MetricInstruments.HTTP_SERVER_DURATION: meter.create_histogram(
             name=MetricInstruments.HTTP_SERVER_DURATION,
             unit="ms",
@@ -305,11 +305,9 @@ def _create_server_histograms(meter) -> Dict[str, Histogram]:
         ),
     }
 
-    return histograms
-
 
 def _create_client_histograms(meter) -> Dict[str, Histogram]:
-    histograms = {
+    return {
         MetricInstruments.HTTP_CLIENT_DURATION: meter.create_histogram(
             name=MetricInstruments.HTTP_CLIENT_DURATION,
             unit="ms",
@@ -326,8 +324,6 @@ def _create_client_histograms(meter) -> Dict[str, Histogram]:
             description="measures the size of HTTP response messages (compressed)",
         ),
     }
-
-    return histograms
 
 
 def patch_handler_class(tracer, server_histograms, cls, request_hook=None):
@@ -393,10 +389,7 @@ def _on_finish(tracer, server_histograms, func, handler, args, kwargs):
 
 
 def _log_exception(tracer, server_histograms, func, handler, args, kwargs):
-    error = None
-    if len(args) == 3:
-        error = args[1]
-
+    error = args[1] if len(args) == 3 else None
     _record_on_finish_metrics(server_histograms, handler, error)
 
     _finish_span(tracer, handler, error)
@@ -409,8 +402,7 @@ def _collect_custom_request_headers_attributes(request_headers):
     )
     attributes = {}
     for header_name in custom_request_headers_name:
-        header_values = request_headers.get(header_name)
-        if header_values:
+        if header_values := request_headers.get(header_name):
             key = normalise_request_header_name(header_name.lower())
             attributes[key] = [header_values]
     return attributes
@@ -422,8 +414,7 @@ def _collect_custom_response_headers_attributes(response_headers):
     )
     attributes = {}
     for header_name in custom_response_headers_name:
-        header_values = response_headers.get(header_name)
-        if header_values:
+        if header_values := response_headers.get(header_name):
             key = normalise_response_header_name(header_name.lower())
             attributes[key] = [header_values]
     return attributes
@@ -491,11 +482,7 @@ def _start_span(tracer, handler) -> _TraceContext:
     ctx = _TraceContext(activation, span, token)
     setattr(handler, _HANDLER_CONTEXT_KEY, ctx)
 
-    # finish handler is called after the response is sent back to
-    # the client so it is too late to inject trace response headers
-    # there.
-    propagator = get_global_response_propagator()
-    if propagator:
+    if propagator := get_global_response_propagator():
         propagator.inject(handler, setter=response_propagation_setter)
 
     return ctx
@@ -596,15 +583,13 @@ def _record_on_finish_metrics(server_histograms, handler, error=None):
 
 
 def _create_active_requests_attributes(request):
-    metric_attributes = {
+    return {
         SpanAttributes.HTTP_METHOD: request.method,
         SpanAttributes.HTTP_SCHEME: request.protocol,
         SpanAttributes.HTTP_FLAVOR: request.version,
         SpanAttributes.HTTP_HOST: request.host,
         SpanAttributes.HTTP_TARGET: request.path,
     }
-
-    return metric_attributes
 
 
 def _create_metric_attributes(handler):

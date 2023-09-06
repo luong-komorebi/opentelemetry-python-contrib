@@ -338,13 +338,15 @@ class _InterceptorChannel(grpc.Channel):
 def intercept_channel(channel, *interceptors):
     result = channel
     for interceptor in interceptors:
-        if not isinstance(
-            interceptor, grpcext.UnaryClientInterceptor
-        ) and not isinstance(interceptor, grpcext.StreamClientInterceptor):
+        if isinstance(
+            interceptor,
+            (grpcext.UnaryClientInterceptor, grpcext.StreamClientInterceptor),
+        ):
+            result = _InterceptorChannel(result, interceptor)
+        else:
             raise TypeError(
                 "interceptor must be either a "
                 "grpcext.UnaryClientInterceptor or a "
                 "grpcext.StreamClientInterceptor"
             )
-        result = _InterceptorChannel(result, interceptor)
     return result
