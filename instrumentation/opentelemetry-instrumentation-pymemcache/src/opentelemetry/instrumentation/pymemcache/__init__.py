@@ -105,15 +105,11 @@ def _with_tracer_wrapper(func):
 @_with_tracer_wrapper
 def _wrap_cmd(tracer, cmd, wrapped, instance, args, kwargs):
     with tracer.start_as_current_span(
-        cmd, kind=SpanKind.CLIENT, attributes={}
-    ) as span:
+            cmd, kind=SpanKind.CLIENT, attributes={}
+        ) as span:
         try:
             if span.is_recording():
-                if not args:
-                    vals = ""
-                else:
-                    vals = _get_query_string(args[0])
-
+                vals = "" if not args else _get_query_string(args[0])
                 query = f"{cmd}{' ' if vals else ''}{vals}"
                 span.set_attribute(SpanAttributes.DB_STATEMENT, query)
 
@@ -152,9 +148,7 @@ def _get_query_string(arg):
 
 def _get_address_attributes(instance):
     """Attempt to get host and port from Client instance."""
-    address_attributes = {}
-    address_attributes[SpanAttributes.DB_SYSTEM] = "memcached"
-
+    address_attributes = {SpanAttributes.DB_SYSTEM: "memcached"}
     # client.base.Client contains server attribute which is either a host/port tuple, or unix socket path string
     # https://github.com/pinterest/pymemcache/blob/f02ddf73a28c09256589b8afbb3ee50f1171cac7/pymemcache/client/base.py#L228
     if hasattr(instance, "server"):

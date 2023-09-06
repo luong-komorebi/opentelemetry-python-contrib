@@ -528,10 +528,9 @@ class MockPool:
         return _PoolAcquireContextManager(coro, self)
 
     async def _acquire(self):
-        connect = await mock_connect(
+        return await mock_connect(
             self.database, self.server_port, self.server_host, self.user
         )
-        return connect
 
     def close(self):
         pass

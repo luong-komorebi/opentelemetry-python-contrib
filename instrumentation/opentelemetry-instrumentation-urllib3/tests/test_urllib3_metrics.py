@@ -241,9 +241,7 @@ class TestURLLib3InstrumentorMetric(HttpTestBase, TestBase):
         )
 
     def test_generator_request_body_size_metrics(self):
-        self.pool.request(
-            "POST", self.HTTP_URL, body=(b for b in (b"foo", b"bar"))
-        )
+        self.pool.request("POST", self.HTTP_URL, body=iter((b"foo", b"bar")))
 
         metrics = self.get_sorted_metrics()
         self.assertEqual(len(metrics), 2)

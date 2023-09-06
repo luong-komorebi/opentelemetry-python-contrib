@@ -131,11 +131,11 @@ class SQLAlchemyTestMixin(TestBase):
         # one span for the connection and one for the query
         self.assertEqual(len(spans), 2)
         span = spans[1]
-        stmt = "INSERT INTO players (id, name) VALUES "
-        if span.attributes.get(SpanAttributes.DB_SYSTEM) == "sqlite":
-            stmt += "(?, ?)"
-        else:
-            stmt += "(%(id)s, %(name)s)"
+        stmt = "INSERT INTO players (id, name) VALUES " + (
+            "(?, ?)"
+            if span.attributes.get(SpanAttributes.DB_SYSTEM) == "sqlite"
+            else "(%(id)s, %(name)s)"
+        )
         self._check_span(span, "INSERT")
         self.assertIn(
             "INSERT INTO players",
@@ -152,11 +152,14 @@ class SQLAlchemyTestMixin(TestBase):
         # one span for the connection and one for the query
         self.assertEqual(len(spans), 2)
         span = spans[1]
-        stmt = "SELECT players.id AS players_id, players.name AS players_name \nFROM players \nWHERE players.name = "
-        if span.attributes.get(SpanAttributes.DB_SYSTEM) == "sqlite":
-            stmt += "?"
-        else:
-            stmt += "%(name_1)s"
+        stmt = (
+            "SELECT players.id AS players_id, players.name AS players_name \nFROM players \nWHERE players.name = "
+            + (
+                "?"
+                if span.attributes.get(SpanAttributes.DB_SYSTEM) == "sqlite"
+                else "%(name_1)s"
+            )
+        )
         self._check_span(span, "SELECT")
         self.assertIn(
             "SELECT players.id AS players_id, players.name AS players_name \nFROM players \nWHERE players.name",
@@ -204,7 +207,7 @@ class SQLAlchemyTestMixin(TestBase):
         self.assertEqual(parent_span.name, "sqlalch_op")
         self.assertEqual(parent_span.instrumentation_info.name, "sqlalch_svc")
 
-        self.assertEqual(child_span.name, "SELECT " + self.SQL_DB)
+        self.assertEqual(child_span.name, f"SELECT {self.SQL_DB}")
 
     def test_multithreading(self):
         """Ensure spans are captured correctly in a multithreading scenario

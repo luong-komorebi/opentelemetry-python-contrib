@@ -85,7 +85,7 @@ def test_parse_histogram_dp(prom_rw):
     )
     name = "foo_histogram"
     label_sample_pairs = prom_rw._parse_histogram_data_point(dp, name)
-    timestamp = timestamp // 1_000_000
+    timestamp //= 1_000_000
     bounds.append("+Inf")
     for pos, bound in enumerate(bounds):
         # We have to attributes, we kinda assume the bucket label is last...

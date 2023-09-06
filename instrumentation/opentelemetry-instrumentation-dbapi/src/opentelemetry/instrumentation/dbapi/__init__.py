@@ -289,15 +289,13 @@ class DatabaseApiIntegration:
     def get_connection_attributes(self, connection):
         # Populate span fields using connection
         for key, value in self.connection_attributes.items():
-            # Allow attributes nested in connection object
-            attribute = functools.reduce(
+            if attribute := functools.reduce(
                 lambda attribute, attribute_value: getattr(
                     attribute, attribute_value, None
                 ),
                 value.split("."),
                 connection,
-            )
-            if attribute:
+            ):
                 self.connection_props[key] = attribute
         self.name = self.database_system
         self.database = self.connection_props.get("database", "")
@@ -305,7 +303,7 @@ class DatabaseApiIntegration:
             # PyMySQL encodes names with utf-8
             if hasattr(self.database, "decode"):
                 self.database = self.database.decode(errors="ignore")
-            self.name += "." + self.database
+            self.name += f".{self.database}"
         user = self.connection_props.get("user")
         # PyMySQL encodes this data
         if user and isinstance(user, bytes):

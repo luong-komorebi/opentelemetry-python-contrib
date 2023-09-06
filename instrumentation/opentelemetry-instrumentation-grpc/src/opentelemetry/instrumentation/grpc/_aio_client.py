@@ -58,11 +58,7 @@ class _BaseAioClientInterceptor(OpenTelemetryClientInterceptor):
     @staticmethod
     def propagate_trace_in_details(client_call_details):
         metadata = client_call_details.metadata
-        if not metadata:
-            mutable_metadata = OrderedDict()
-        else:
-            mutable_metadata = OrderedDict(metadata)
-
+        mutable_metadata = OrderedDict() if not metadata else OrderedDict(metadata)
         inject(mutable_metadata, setter=_carrier_setter)
         metadata = tuple(mutable_metadata.items())
 

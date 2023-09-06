@@ -201,7 +201,7 @@ def get_base_estimators(packages: List[str]) -> Dict[str, Type[BaseEstimator]]:
         for _, module_name, _ in iter_modules([package_dir]):
             # import the module and iterate through its attributes
             try:
-                module = import_module(package_name + "." + module_name)
+                module = import_module(f"{package_name}.{module_name}")
             except ImportError:
                 logger.warning(
                     "Unable to import %s.%s", package_name, module_name
@@ -480,7 +480,7 @@ class SklearnInstrumentor(BaseInstrumentor):
             method_name (str): The method name of the estimator on which to
               check for instrumentation.
         """
-        orig_method_name = "_otel_original_" + method_name
+        orig_method_name = f"_otel_original_{method_name}"
         has_original = hasattr(estimator, orig_method_name)
         orig_class, orig_method = getattr(
             estimator, orig_method_name, (None, None)
@@ -510,7 +510,6 @@ class SklearnInstrumentor(BaseInstrumentor):
             method_name (str): The method name of the estimator on which to
               apply a span.
         """
-        orig_method_name = "_otel_original_" + method_name
         if isclass(estimator):
             qualname = estimator.__qualname__
         else:
@@ -522,6 +521,7 @@ class SklearnInstrumentor(BaseInstrumentor):
                 qualname,
                 method_name,
             )
+            orig_method_name = f"_otel_original_{method_name}"
             _, orig_method = getattr(estimator, orig_method_name)
             setattr(
                 estimator,
@@ -564,7 +564,6 @@ class SklearnInstrumentor(BaseInstrumentor):
             method_name (str): The method name of the estimator on which to
               apply a span.
         """
-        orig_method_name = "_otel_original_" + method_name
         if isclass(estimator):
             qualname = estimator.__qualname__
         else:
@@ -575,6 +574,7 @@ class SklearnInstrumentor(BaseInstrumentor):
                 qualname,
                 method_name,
             )
+            orig_method_name = f"_otel_original_{method_name}"
             _, orig_method = getattr(estimator, orig_method_name)
             setattr(
                 estimator,
@@ -628,11 +628,7 @@ class SklearnInstrumentor(BaseInstrumentor):
         elif delegator is not None:
             implement_span_delegator(delegator)
         else:
-            setattr(
-                estimator,
-                "_otel_original_" + method_name,
-                (estimator, class_attr),
-            )
+            setattr(estimator, f"_otel_original_{method_name}", (estimator, class_attr))
             setattr(
                 estimator,
                 method_name,
@@ -680,9 +676,7 @@ class SklearnInstrumentor(BaseInstrumentor):
             )
         else:
             method = getattr(estimator, method_name)
-            setattr(
-                estimator, "_otel_original_" + method_name, (estimator, method)
-            )
+            setattr(estimator, f"_otel_original_{method_name}", (estimator, method))
             setattr(
                 estimator,
                 method_name,

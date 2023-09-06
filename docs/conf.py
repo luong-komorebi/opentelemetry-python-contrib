@@ -168,8 +168,8 @@ if branch is None or branch == "latest":
     branch = "main"
 
 REPO = "open-telemetry/opentelemetry-python-contrib/"
-scm_raw_web = "https://raw.githubusercontent.com/" + REPO + branch
-scm_web = "https://github.com/" + REPO + "blob/" + branch
+scm_raw_web = f"https://raw.githubusercontent.com/{REPO}{branch}"
+scm_web = f"https://github.com/{REPO}blob/{branch}"
 
 # Store variables in the epilogue so they are globally available.
 rst_epilog = f"""
@@ -180,6 +180,6 @@ rst_epilog = f"""
 
 # used to have links to repo files
 extlinks = {
-    "scm_raw_web": (scm_raw_web + "/%s", "scm_raw_web"),
-    "scm_web": (scm_web + "/%s", "scm_web"),
+    "scm_raw_web": (f"{scm_raw_web}/%s", "scm_raw_web"),
+    "scm_web": (f"{scm_web}/%s", "scm_web"),
 }

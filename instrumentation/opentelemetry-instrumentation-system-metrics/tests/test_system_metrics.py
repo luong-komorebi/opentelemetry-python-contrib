@@ -94,8 +94,7 @@ class TestSystemMetrics(TestBase):
         metric_names = []
         for resource_metrics in reader.get_metrics_data().resource_metrics:
             for scope_metrics in resource_metrics.scope_metrics:
-                for metric in scope_metrics.metrics:
-                    metric_names.append(metric.name)
+                metric_names.extend(metric.name for metric in scope_metrics.metrics)
         self.assertEqual(len(metric_names), 18)
 
         observer_names = [
@@ -138,8 +137,7 @@ class TestSystemMetrics(TestBase):
         metric_names = []
         for resource_metrics in reader.get_metrics_data().resource_metrics:
             for scope_metrics in resource_metrics.scope_metrics:
-                for metric in scope_metrics.metrics:
-                    metric_names.append(metric.name)
+                metric_names.extend(metric.name for metric in scope_metrics.metrics)
         self.assertEqual(len(metric_names), 3)
 
         observer_names = [

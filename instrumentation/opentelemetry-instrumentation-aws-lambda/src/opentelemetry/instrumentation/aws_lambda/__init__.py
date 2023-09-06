@@ -167,9 +167,7 @@ def _determine_parent_context(
     parent_context = None
 
     if not disable_aws_context_propagation:
-        xray_env_var = os.environ.get(_X_AMZN_TRACE_ID)
-
-        if xray_env_var:
+        if xray_env_var := os.environ.get(_X_AMZN_TRACE_ID):
             parent_context = AwsXRayPropagator().extract(
                 {TRACE_HEADER_KEY: xray_env_var}
             )

@@ -353,9 +353,9 @@ class DjangoInstrumentor(BaseInstrumentor):
         if isinstance(settings_middleware, tuple):
             settings_middleware = list(settings_middleware)
 
-        is_sql_commentor_enabled = kwargs.pop("is_sql_commentor_enabled", None)
-
-        if is_sql_commentor_enabled:
+        if is_sql_commentor_enabled := kwargs.pop(
+            "is_sql_commentor_enabled", None
+        ):
             settings_middleware.insert(0, self._sql_commenter_middleware)
 
         settings_middleware.insert(0, self._opentelemetry_middleware)

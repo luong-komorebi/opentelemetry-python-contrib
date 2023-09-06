@@ -56,9 +56,7 @@ class MockConnection:
         self.cursor_factory = kwargs.pop("cursor_factory", None)
 
     def cursor(self):
-        if self.cursor_factory:
-            return self.cursor_factory(self)
-        return MockCursor()
+        return self.cursor_factory(self) if self.cursor_factory else MockCursor()
 
     def get_dsn_parameters(self):  # pylint: disable=no-self-use
         return dict(dbname="test")

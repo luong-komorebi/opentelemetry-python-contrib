@@ -223,11 +223,10 @@ def _apply_status_code(span: Span, status_code: int) -> None:
 def _prepare_attributes(method: bytes, url: URL) -> typing.Dict[str, str]:
     _method = method.decode().upper()
     _url = str(httpx.URL(url))
-    span_attributes = {
+    return {
         SpanAttributes.HTTP_METHOD: _method,
         SpanAttributes.HTTP_URL: _url,
     }
-    return span_attributes
 
 
 def _prepare_headers(headers: typing.Optional[Headers]) -> httpx.Headers:

@@ -23,10 +23,7 @@ def _add_sql_comment(sql, **meta) -> str:
     meta.update(**_add_framework_tags())
     comment = _generate_sql_comment(**meta)
     sql = sql.rstrip()
-    if sql[-1] == ";":
-        sql = sql[:-1] + comment + ";"
-    else:
-        sql = sql + comment
+    sql = sql[:-1] + comment + ";" if sql[-1] == ";" else sql + comment
     return sql
 
 
@@ -37,19 +34,10 @@ def _generate_sql_comment(**meta) -> str:
     """
     key_value_delimiter = ","
 
-    if not meta:  # No entries added.
-        return ""
-
-    # Sort the keywords to ensure that caching works and that testing is
-    # deterministic. It eases visual inspection as well.
     return (
-        " /*"
-        + key_value_delimiter.join(
-            f"{_url_quote(key)}={_url_quote(value)!r}"
-            for key, value in sorted(meta.items())
-            if value is not None
-        )
-        + "*/"
+        ""
+        if not meta
+        else f' /*{key_value_delimiter.join(f"{_url_quote(key)}={_url_quote(value)!r}" for key, value in sorted(meta.items()) if value is not None)}*/'
     )
 
 
@@ -58,9 +46,8 @@ def _add_framework_tags() -> dict:
     Returns orm related tags if any set by the context
     """
 
-    sqlcommenter_framework_values = (
+    return (
         context.get_value("SQLCOMMENTER_ORM_TAGS_AND_VALUES")
         if context.get_value("SQLCOMMENTER_ORM_TAGS_AND_VALUES")
         else {}
     )
-    return sqlcommenter_framework_values

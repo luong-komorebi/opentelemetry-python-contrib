@@ -637,7 +637,7 @@ class TestCustomRequestResponseHeaders(InstrumentationTest, WsgiTestBase):
                 "http.request.header.my_secret_header": ("[REDACTED]",),
             }
             self.assertEqual(span.kind, trace.SpanKind.INTERNAL)
-            for key, _ in not_expected.items():
+            for key in not_expected:
                 self.assertNotIn(key, span.attributes)
 
     def test_custom_response_header_added_in_server_span(self):
@@ -686,5 +686,5 @@ class TestCustomRequestResponseHeaders(InstrumentationTest, WsgiTestBase):
                 "http.response.header.my_secret_header": ("[REDACTED]",),
             }
             self.assertEqual(span.kind, trace.SpanKind.INTERNAL)
-            for key, _ in not_expected.items():
+            for key in not_expected:
                 self.assertNotIn(key, span.attributes)

@@ -646,7 +646,7 @@ class TestWebSocketAppWithCustomHeaders(TestBaseWithCustomHeaders):
             span for span in span_list if span.kind == SpanKind.SERVER
         ][0]
 
-        for key, _ in not_expected.items():
+        for key in not_expected:
             self.assertNotIn(key, server_span.attributes)
 
     def test_custom_response_headers_in_span_attributes(self):
@@ -695,7 +695,7 @@ class TestWebSocketAppWithCustomHeaders(TestBaseWithCustomHeaders):
             span for span in span_list if span.kind == SpanKind.SERVER
         ][0]
 
-        for key, _ in not_expected.items():
+        for key in not_expected:
             self.assertNotIn(key, server_span.attributes)
 
 

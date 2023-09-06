@@ -71,8 +71,7 @@ def _load_instrumentors(distro):
             continue
 
         try:
-            conflict = get_dist_dependency_conflicts(entry_point.dist)
-            if conflict:
+            if conflict := get_dist_dependency_conflicts(entry_point.dist):
                 logger.debug(
                     "Skipping instrumentation %s: %s",
                     entry_point.name,

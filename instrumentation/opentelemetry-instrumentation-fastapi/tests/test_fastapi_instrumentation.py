@@ -405,10 +405,11 @@ class TestAutoInstrumentation(TestFastAPIManualInstrumentation):
 
     def test_mulitple_way_instrumentation(self):
         self._instrumentor.instrument_app(self._app)
-        count = 0
-        for middleware in self._app.user_middleware:
-            if middleware.cls is OpenTelemetryMiddleware:
-                count += 1
+        count = sum(
+            1
+            for middleware in self._app.user_middleware
+            if middleware.cls is OpenTelemetryMiddleware
+        )
         self.assertEqual(count, 1)
 
     def test_uninstrument_after_instrument(self):
@@ -512,7 +513,7 @@ class TestWrappedApplication(TestBase):
 
         span_list = self.memory_exporter.get_finished_spans()
         for span in span_list:
-            print(str(span.__class__) + ": " + str(span.__dict__))
+            print(f"{str(span.__class__)}: {str(span.__dict__)}")
 
         # there should be 4 spans - single SERVER "test" and three INTERNAL "FastAPI"
         self.assertEqual(trace.SpanKind.INTERNAL, span_list[0].kind)
@@ -625,7 +626,7 @@ class TestHTTPAppWithCustomHeaders(TestBase):
             span for span in span_list if span.kind == trace.SpanKind.SERVER
         ][0]
 
-        for key, _ in not_expected.items():
+        for key in not_expected:
             self.assertNotIn(key, server_span.attributes)
 
     def test_http_custom_response_headers_in_span_attributes(self):
@@ -669,7 +670,7 @@ class TestHTTPAppWithCustomHeaders(TestBase):
             span for span in span_list if span.kind == trace.SpanKind.SERVER
         ][0]
 
-        for key, _ in not_expected.items():
+        for key in not_expected:
             self.assertNotIn(key, server_span.attributes)
 
 
@@ -783,7 +784,7 @@ class TestWebSocketAppWithCustomHeaders(TestBase):
             span for span in span_list if span.kind == trace.SpanKind.SERVER
         ][0]
 
-        for key, _ in not_expected.items():
+        for key in not_expected:
             self.assertNotIn(key, server_span.attributes)
 
     def test_web_socket_custom_response_headers_in_span_attributes(self):
@@ -827,7 +828,7 @@ class TestWebSocketAppWithCustomHeaders(TestBase):
             span for span in span_list if span.kind == trace.SpanKind.SERVER
         ][0]
 
-        for key, _ in not_expected.items():
+        for key in not_expected:
             self.assertNotIn(key, server_span.attributes)
 
 

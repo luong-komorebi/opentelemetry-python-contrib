@@ -31,28 +31,19 @@ _GET_METHOD = "GET"
 
 
 def _aws_http_request(method, path, cred_value):
-    with urlopen(
-        Request(
-            "https://kubernetes.default.svc" + path,
-            headers={"Authorization": cred_value},
-            method=method,
-        ),
-        timeout=5,
-        context=ssl.create_default_context(
-            cafile="/var/run/secrets/kubernetes.io/serviceaccount/ca.crt"
-        ),
-    ) as response:
+    with urlopen(Request(f"https://kubernetes.default.svc{path}", headers={"Authorization": cred_value}, method=method), timeout=5, context=ssl.create_default_context(
+                cafile="/var/run/secrets/kubernetes.io/serviceaccount/ca.crt"
+            )) as response:
         return response.read().decode("utf-8")
 
 
 def _get_k8s_cred_value():
     try:
         with open(
-            "/var/run/secrets/kubernetes.io/serviceaccount/token",
-            encoding="utf8",
-        ) as token_file:
-            return "Bearer " + token_file.read()
-    # pylint: disable=broad-except
+                    "/var/run/secrets/kubernetes.io/serviceaccount/token",
+                    encoding="utf8",
+                ) as token_file:
+            return f"Bearer {token_file.read()}"
     except Exception as exception:
         logger.error("Failed to get k8s token: %s", exception)
         raise exception
@@ -88,7 +79,7 @@ def _get_cluster_name(cred_value) -> str:
 def _get_container_id():
     container_id = ""
     with open("/proc/self/cgroup", encoding="utf8") as container_info_file:
-        for raw_line in container_info_file.readlines():
+        for raw_line in container_info_file:
             line = raw_line.strip()
             # Subsequent IDs should be the same, exit if found one
             if len(line) > _CONTAINER_ID_LENGTH:

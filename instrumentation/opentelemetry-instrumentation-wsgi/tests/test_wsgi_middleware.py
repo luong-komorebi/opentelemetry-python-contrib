@@ -166,7 +166,7 @@ class TestWsgiApplication(WsgiTestBase):
             SpanAttributes.HTTP_URL: "http://127.0.0.1/",
             SpanAttributes.HTTP_STATUS_CODE: 200,
         }
-        expected_attributes.update(span_attributes or {})
+        expected_attributes |= (span_attributes or {})
         if http_method is not None:
             expected_attributes[SpanAttributes.HTTP_METHOD] = http_method
         self.assertEqual(span_list[0].attributes, expected_attributes)
@@ -334,7 +334,7 @@ class TestWsgiAttributes(unittest.TestCase):
 
         attrs = otel_wsgi.collect_request_attributes(self.environ)
         self.assertGreaterEqual(
-            attrs.items(), expected.items(), expected_url + " expected."
+            attrs.items(), expected.items(), f"{expected_url} expected."
         )
 
     def test_request_attributes_with_partial_raw_uri(self):
@@ -618,8 +618,8 @@ class TestAdditionOfCustomRequestResponseHeaders(WsgiTestBase):
         )
 
         with self.tracer.start_as_current_span(
-            "test", kind=trace_api.SpanKind.SERVER
-        ):
+                "test", kind=trace_api.SpanKind.SERVER
+            ):
             app = otel_wsgi.OpenTelemetryMiddleware(simple_wsgi)
             response = app(self.environ, self.start_response)
             self.iterate_response(response)
@@ -627,7 +627,7 @@ class TestAdditionOfCustomRequestResponseHeaders(WsgiTestBase):
             not_expected = {
                 "http.request.header.custom_test_header_1": ("Test Value 1",),
             }
-            for key, _ in not_expected.items():
+            for key in not_expected:
                 self.assertNotIn(key, span.attributes)
 
     @mock.patch.dict(
@@ -670,8 +670,8 @@ class TestAdditionOfCustomRequestResponseHeaders(WsgiTestBase):
     )
     def test_custom_response_headers_not_added_in_internal_span(self):
         with self.tracer.start_as_current_span(
-            "test", kind=trace_api.SpanKind.INTERNAL
-        ):
+                "test", kind=trace_api.SpanKind.INTERNAL
+            ):
             app = otel_wsgi.OpenTelemetryMiddleware(
                 wsgi_with_custom_response_headers
             )
@@ -683,7 +683,7 @@ class TestAdditionOfCustomRequestResponseHeaders(WsgiTestBase):
                     "my-custom-value-1,my-custom-header-2",
                 ),
             }
-            for key, _ in not_expected.items():
+            for key in not_expected:
                 self.assertNotIn(key, span.attributes)
 
 

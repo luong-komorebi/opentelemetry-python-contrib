@@ -17,8 +17,7 @@ class AsyncProxyObject(wrapt.ObjectProxy):
         return self.__wrapped__.__aiter__()
 
     async def __anext__(self):
-        result = await self.__wrapped__.__anext__()
-        return result
+        return await self.__wrapped__.__anext__()
 
     async def __aenter__(self):
         return await self.__wrapped__.__aenter__()
@@ -104,10 +103,7 @@ class AsyncCursorTracer(CursorTracer):
         *args: typing.Tuple[typing.Any, typing.Any],
         **kwargs: typing.Dict[typing.Any, typing.Any]
     ):
-        name = ""
-        if args:
-            name = self.get_operation_name(cursor, args)
-
+        name = self.get_operation_name(cursor, args) if args else ""
         if not name:
             name = (
                 self._db_api_integration.database
@@ -125,29 +121,28 @@ class AsyncCursorTracer(CursorTracer):
 def get_traced_cursor_proxy(cursor, db_api_integration, *args, **kwargs):
     _traced_cursor = AsyncCursorTracer(db_api_integration)
 
-    # pylint: disable=abstract-method
+
+
     class AsyncCursorTracerProxy(AsyncProxyObject):
         # pylint: disable=unused-argument
         def __init__(self, cursor, *args, **kwargs):
             super().__init__(cursor)
 
         async def execute(self, *args, **kwargs):
-            result = await _traced_cursor.traced_execution(
+            return await _traced_cursor.traced_execution(
                 self, self.__wrapped__.execute, *args, **kwargs
             )
-            return result
 
         async def executemany(self, *args, **kwargs):
-            result = await _traced_cursor.traced_execution(
+            return await _traced_cursor.traced_execution(
                 self, self.__wrapped__.executemany, *args, **kwargs
             )
-            return result
 
         async def callproc(self, *args, **kwargs):
-            result = await _traced_cursor.traced_execution(
+            return await _traced_cursor.traced_execution(
                 self, self.__wrapped__.callproc, *args, **kwargs
             )
-            return result
+
 
     return AsyncCursorTracerProxy(cursor, *args, **kwargs)
 
@@ -188,8 +183,7 @@ class _ContextManager(Coroutine):
         return self.send(None)
 
     def __await__(self):
-        resp = self._coro.__await__()
-        return resp
+        return self._coro.__await__()
 
     async def __aenter__(self):
         self._obj = await self._coro

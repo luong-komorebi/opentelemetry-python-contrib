@@ -445,12 +445,11 @@ class GrpcInstrumentorClient(BaseInstrumentor):
                 return ("secure_channel",)
             return ("insecure_channel",)
 
-        # handle modern arguments
-        types = []
-        for ctype in ("secure_channel", "insecure_channel"):
-            if kwargs.get(ctype, True):
-                types.append(ctype)
-
+        types = [
+            ctype
+            for ctype in ("secure_channel", "insecure_channel")
+            if kwargs.get(ctype, True)
+        ]
         return tuple(types)
 
     def instrumentation_dependencies(self) -> Collection[str]:
@@ -678,10 +677,8 @@ def _excluded_service_filter() -> Union[Callable[[object], bool], None]:
 
 
 def _parse_services(excluded_services: str) -> List[str]:
-    if excluded_services != "":
-        excluded_service_list = [
-            s.strip() for s in excluded_services.split(",")
-        ]
-    else:
-        excluded_service_list = []
-    return excluded_service_list
+    return (
+        [s.strip() for s in excluded_services.split(",")]
+        if excluded_services != ""
+        else []
+    )

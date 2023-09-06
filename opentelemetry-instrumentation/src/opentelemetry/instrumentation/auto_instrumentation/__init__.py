@@ -69,7 +69,7 @@ def run() -> None:
         "--version",
         help="print version information",
         action="version",
-        version="%(prog)s " + __version__,
+        version=f"%(prog)s {__version__}",
     )
     parser.add_argument("command", help="Your Python application.")
     parser.add_argument(
@@ -89,12 +89,7 @@ def run() -> None:
 
     python_path = environ.get("PYTHONPATH")
 
-    if not python_path:
-        python_path = []
-
-    else:
-        python_path = python_path.split(pathsep)
-
+    python_path = [] if not python_path else python_path.split(pathsep)
     cwd_path = getcwd()
 
     # This is being added to support applications that are being run from their

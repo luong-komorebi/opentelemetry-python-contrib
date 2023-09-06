@@ -184,6 +184,7 @@ Note:
 API
 ---
 """
+
 import platform
 from typing import Collection
 
@@ -206,10 +207,7 @@ from opentelemetry.instrumentation.utils import unwrap
 # from importing an unused symbol.
 trace_tween_factory  # pylint: disable=pointless-statement
 
-if platform.python_implementation() == "PyPy":
-    CALLER_LEVELS = 3
-else:
-    CALLER_LEVELS = 2
+CALLER_LEVELS = 3 if platform.python_implementation() == "PyPy" else 2
 
 
 def _traced_init(wrapped, instance, args, kwargs):

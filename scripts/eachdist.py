@@ -268,10 +268,14 @@ def parse_args(args=None):
 
 def find_projectroot(search_start=Path(".")):
     root = search_start.resolve()
-    for root in chain((root,), root.parents):
-        if any((root / marker).exists() for marker in (".git", "tox.ini")):
-            return root
-    return None
+    return next(
+        (
+            root
+            for root in chain((root,), root.parents)
+            if any((root / marker).exists() for marker in (".git", "tox.ini"))
+        ),
+        None,
+    )
 
 
 def find_targets_unordered(rootpath):
@@ -382,15 +386,12 @@ def runsubprocess(dry_run, params, *args, **kwargs):
     # Only this would find the "correct" python.exe.
 
     params = list(params)
-    executable = shutil.which(params[0])
-    if executable:
+    if executable := shutil.which(params[0]):
         params[0] = executable
     try:
         return subprocess_run(params, *args, check=check, **kwargs)
     except OSError as exc:
-        raise ValueError(
-            "Failed executing " + repr(params) + ": " + str(exc)
-        ) from exc
+        raise ValueError(f"Failed executing {repr(params)}: {str(exc)}") from exc
 
 
 def execute_args(args):
@@ -586,7 +587,7 @@ def update_changelogs(version):
     try:
         update_changelog("./CHANGELOG.md", version, new_entry)
     except Exception as err:  # pylint: disable=broad-except
-        print(str(err))
+        print(err)
         errors = True
 
     if errors:

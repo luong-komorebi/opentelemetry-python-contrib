@@ -153,8 +153,15 @@ def _getstate() -> typing.Optional[dict]:
 
 @contextlib.contextmanager
 def set_ip_on_next_http_connection(span: Span):
-    state = _getstate()
-    if not state:
+    if state := _getstate():
+        spans = state["need_ip"]  # type: typing.List[Span]
+        spans.append(span)
+        try:
+            yield
+        finally:
+            with contextlib.suppress(ValueError):
+                spans.remove(span)
+    else:
         token = context.attach(
             context.set_value(_STATE_KEY, {"need_ip": [span]})
         )
@@ -162,16 +169,6 @@ def set_ip_on_next_http_connection(span: Span):
             yield
         finally:
             context.detach(token)
-    else:
-        spans = state["need_ip"]  # type: typing.List[Span]
-        spans.append(span)
-        try:
-            yield
-        finally:
-            try:
-                spans.remove(span)
-            except ValueError:  # Span might have become non-recording
-                pass
 
 
 def _uninstrument():

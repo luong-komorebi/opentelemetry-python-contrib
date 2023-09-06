@@ -32,7 +32,7 @@ class InstrumentationTest:
             raise exc.HTTPNoContent()
         if helloid == 900:
             raise NotImplementedError()
-        return Response("Hello: " + str(helloid))
+        return Response(f"Hello: {helloid}")
 
     @staticmethod
     def _custom_response_header_endpoint(request):

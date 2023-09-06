@@ -255,9 +255,7 @@ class ASGIGetter(Getter[dict]):
             for (_key, _value) in headers
             if _key.decode("utf8").lower() == key
         ]
-        if not decoded:
-            return None
-        return decoded
+        return None if not decoded else decoded
 
     def keys(self, carrier: dict) -> typing.List[str]:
         headers = carrier.get("headers") or []
@@ -299,7 +297,7 @@ def collect_request_attributes(scope):
     if query_string and http_url:
         if isinstance(query_string, bytes):
             query_string = query_string.decode("utf8")
-        http_url += "?" + urllib.parse.unquote(query_string)
+        http_url += f"?{urllib.parse.unquote(query_string)}"
 
     result = {
         SpanAttributes.HTTP_SCHEME: scope.get("scheme"),
@@ -309,17 +307,14 @@ def collect_request_attributes(scope):
         SpanAttributes.HTTP_TARGET: scope.get("path"),
         SpanAttributes.HTTP_URL: remove_url_credentials(http_url),
     }
-    http_method = scope.get("method")
-    if http_method:
+    if http_method := scope.get("method"):
         result[SpanAttributes.HTTP_METHOD] = http_method
 
-    http_host_value_list = asgi_getter.get(scope, "host")
-    if http_host_value_list:
+    if http_host_value_list := asgi_getter.get(scope, "host"):
         result[SpanAttributes.HTTP_SERVER_NAME] = ",".join(
             http_host_value_list
         )
-    http_user_agent = asgi_getter.get(scope, "user-agent")
-    if http_user_agent:
+    if http_user_agent := asgi_getter.get(scope, "user-agent"):
         result[SpanAttributes.HTTP_USER_AGENT] = http_user_agent[0]
 
     if "client" in scope and scope["client"] is not None:
@@ -388,7 +383,7 @@ def get_host_port_url_tuple(scope):
     """Returns (host, port, full_url) tuple."""
     server = scope.get("server") or ["0.0.0.0", 80]
     port = server[1]
-    server_host = server[0] + (":" + str(port) if str(port) != "80" else "")
+    server_host = server[0] + (f":{str(port)}" if str(port) != "80" else "")
     full_path = scope.get("root_path", "") + scope.get("path", "")
     http_url = scope.get("scheme", "http") + "://" + server_host + full_path
     return server_host, port, http_url
@@ -404,7 +399,7 @@ def set_status_code(span, status_code):
         span.set_status(
             Status(
                 StatusCode.ERROR,
-                "Non-integer HTTP status: " + repr(status_code),
+                f"Non-integer HTTP status: {repr(status_code)}",
             )
         )
     else:
@@ -448,8 +443,7 @@ def _collect_target_attribute(
     root_path = scope.get("root_path", "")
 
     route = scope.get("route")
-    path_format = getattr(route, "path_format", None)
-    if path_format:
+    if path_format := getattr(route, "path_format", None):
         return f"{root_path}{path_format}"
 
     return None
@@ -580,8 +574,7 @@ class OpenTelemetryMiddleware:
                 await self.app(scope, otel_receive, otel_send)
         finally:
             if scope["type"] == "http":
-                target = _collect_target_attribute(scope)
-                if target:
+                if target := _collect_target_attribute(scope):
                     duration_attrs[SpanAttributes.HTTP_TARGET] = target
                 duration = max(round((default_timer() - start) * 1000), 0)
                 self.duration_histogram.record(duration, duration_attrs)

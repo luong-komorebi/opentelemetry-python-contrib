@@ -106,7 +106,7 @@ class PrometheusRemoteWriteMetricsExporter(MetricExporter):
 
     @endpoint.setter
     def endpoint(self, endpoint: str):
-        if endpoint == "":
+        if not endpoint:
             raise ValueError("endpoint required")
         self._endpoint = endpoint
 
@@ -203,10 +203,10 @@ class PrometheusRemoteWriteMetricsExporter(MetricExporter):
         rw_timeseries = []
 
         for resource_metrics in data.resource_metrics:
-            resource = resource_metrics.resource
             # OTLP Data model suggests combining some attrs into  job/instance
             # Should we do that here?
             if self.resources_as_labels:
+                resource = resource_metrics.resource
                 resource_labels = [
                     (n, str(v)) for n, v in resource.attributes.items()
                 ]
@@ -229,12 +229,7 @@ class PrometheusRemoteWriteMetricsExporter(MetricExporter):
         """
 
         # Create the metric name, will be a label later
-        if metric.unit:
-            # Prom. naming guidelines add unit to the name
-            name = f"{metric.name}_{metric.unit}"
-        else:
-            name = metric.name
-
+        name = f"{metric.name}_{metric.unit}" if metric.unit else metric.name
         # datapoints have attributes associated with them. these would be sent
         # to RW as different metrics: name & labels is a unique time series
         sample_sets = defaultdict(list)

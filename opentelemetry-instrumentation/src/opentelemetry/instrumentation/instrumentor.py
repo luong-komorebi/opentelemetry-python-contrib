@@ -100,8 +100,7 @@ class BaseInstrumentor(ABC):
         # check if instrumentor has any missing or conflicting dependencies
         skip_dep_check = kwargs.pop("skip_dep_check", False)
         if not skip_dep_check:
-            conflict = self._check_dependency_conflicts()
-            if conflict:
+            if conflict := self._check_dependency_conflicts():
                 _LOG.error(conflict)
                 return None
 

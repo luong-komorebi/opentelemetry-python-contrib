@@ -88,11 +88,11 @@ def test_multiple_traces(tracer_provider):
         child_1.name in child.label
         for child in trees[traceid_1].children[0].children
     )
-    assert not any(
-        parent_1.name in child.label
+    assert all(
+        parent_1.name not in child.label
         for child in trees[traceid_1].children[0].children
     )
-    assert not any(
-        parent_2.name in child.label
+    assert all(
+        parent_2.name not in child.label
         for child in trees[traceid_1].children[0].children
     )

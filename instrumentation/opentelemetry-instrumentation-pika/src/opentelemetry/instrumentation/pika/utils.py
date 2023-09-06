@@ -20,9 +20,7 @@ _LOG = getLogger(__name__)
 class _PikaGetter(Getter[CarrierT]):  # type: ignore
     def get(self, carrier: CarrierT, key: str) -> Optional[List[str]]:
         value = carrier.get(key, None)
-        if value is None:
-            return None
-        return [value]
+        return None if value is None else [value]
 
     def keys(self, carrier: CarrierT) -> List[str]:
         return []
@@ -153,9 +151,7 @@ def _get_span(
 def _generate_span_name(
     task_name: str, operation: Optional[MessagingOperationValues]
 ) -> str:
-    if not operation:
-        return f"{task_name} send"
-    return f"{task_name} {operation.value}"
+    return f"{task_name} {operation.value}" if operation else f"{task_name} send"
 
 
 def _enrich_span(

@@ -52,8 +52,7 @@ class Setter(ABC):
 
 class DictHeaderSetter(Setter):
     def set(self, carrier, key, value):  # pylint: disable=no-self-use
-        old_value = carrier.get(key, "")
-        if old_value:
+        if old_value := carrier.get(key, ""):
             value = f"{old_value}, {value}"
         carrier[key] = value
 

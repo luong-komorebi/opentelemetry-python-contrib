@@ -186,13 +186,7 @@ class CeleryInstrumentor(BaseInstrumentor):
         if task_id is None:
             return
 
-        if task is None:
-            # task is an anonymous task send using send_task or using canvas workflow
-            # Signatures() to send to a task not in the current processes dependency
-            # tree
-            task_name = kwargs.get("sender", "unknown")
-        else:
-            task_name = task.name
+        task_name = kwargs.get("sender", "unknown") if task is None else task.name
         operation_name = f"{_TASK_APPLY_ASYNC}/{task_name}"
         span = self._tracer.start_span(
             operation_name, kind=trace.SpanKind.PRODUCER
@@ -210,8 +204,7 @@ class CeleryInstrumentor(BaseInstrumentor):
 
         utils.attach_span(task, task_id, (span, activation), is_publish=True)
 
-        headers = kwargs.get("headers")
-        if headers:
+        if headers := kwargs.get("headers"):
             inject(headers)
 
     @staticmethod

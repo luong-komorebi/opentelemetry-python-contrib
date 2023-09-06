@@ -27,15 +27,12 @@ class InstrumentationTest:
     def _hello_endpoint(helloid):
         if helloid == 500:
             raise ValueError(":-(")
-        return "Hello: " + str(helloid)
+        return f"Hello: {str(helloid)}"
 
     @staticmethod
     def _sqlcommenter_endpoint():
         current_context = context.get_current()
-        sqlcommenter_flask_values = current_context.get(
-            "SQLCOMMENTER_ORM_TAGS_AND_VALUES", {}
-        )
-        return sqlcommenter_flask_values
+        return current_context.get("SQLCOMMENTER_ORM_TAGS_AND_VALUES", {})
 
     @staticmethod
     def _multithreaded_endpoint(count):

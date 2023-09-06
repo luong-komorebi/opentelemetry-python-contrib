@@ -89,13 +89,11 @@ class _OpPublish(_SnsOperation):
     def _extract_destination_name(
         cls, call_context: _AwsSdkCallContext
     ) -> Tuple[str, bool]:
-        arn = cls._extract_input_arn(call_context)
-        if arn:
+        if arn := cls._extract_input_arn(call_context):
             return arn.rsplit(":", 1)[-1], False
 
         if cls._phone_arg_name:
-            phone_number = call_context.params.get(cls._phone_arg_name)
-            if phone_number:
+            if phone_number := call_context.params.get(cls._phone_arg_name):
                 return phone_number, True
 
         return "unknown", False
@@ -105,8 +103,7 @@ class _OpPublish(_SnsOperation):
         cls, call_context: _AwsSdkCallContext
     ) -> Optional[str]:
         for input_arn in cls._arn_arg_names:
-            arn = call_context.params.get(input_arn)
-            if arn:
+            if arn := call_context.params.get(input_arn):
                 return arn
         return None
 

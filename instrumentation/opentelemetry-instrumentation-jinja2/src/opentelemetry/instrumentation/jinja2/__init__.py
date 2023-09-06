@@ -102,16 +102,15 @@ def _wrap_compile(tracer, wrapped, _, args, kwargs):
 @_with_tracer_wrapper
 def _wrap_load_template(tracer, wrapped, _, args, kwargs):
     with tracer.start_as_current_span(
-        "jinja2.load",
-        kind=SpanKind.INTERNAL,
-    ) as span:
+            "jinja2.load",
+            kind=SpanKind.INTERNAL,
+        ) as span:
         if span.is_recording():
             template_name = kwargs.get("name", args[0])
             span.set_attribute(ATTRIBUTE_JINJA2_TEMPLATE_NAME, template_name)
         template = None
         try:
-            template = wrapped(*args, **kwargs)
-            return template
+            return wrapped(*args, **kwargs)
         finally:
             if template and span.is_recording():
                 span.set_attribute(

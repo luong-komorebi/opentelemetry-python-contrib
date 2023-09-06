@@ -33,9 +33,7 @@ logger = logging.getLogger(__name__)
 def _syscall(func):
     def wrapper(package=None):
         try:
-            if package:
-                return func(package)
-            return func()
+            return func(package) if package else func()
         except subprocess.SubprocessError as exp:
             cmd = getattr(exp, "cmd", None)
             if cmd:
@@ -138,7 +136,7 @@ def run() -> None:
         "--version",
         help="print version information",
         action="version",
-        version="%(prog)s " + __version__,
+        version=f"%(prog)s {__version__}",
     )
     parser.add_argument(
         "-a",

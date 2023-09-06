@@ -35,10 +35,7 @@ def _normalize_vendor(vendor):
     if "sqlite" in vendor:
         return "sqlite"
 
-    if "postgres" in vendor or vendor == "psycopg2":
-        return "postgresql"
-
-    return vendor
+    return "postgresql" if "postgres" in vendor or vendor == "psycopg2" else vendor
 
 
 def _wrap_create_async_engine(
@@ -182,9 +179,7 @@ class EngineTracer:
             )
         if db_name:
             parts.append(db_name)
-        if not parts:
-            return self.vendor
-        return " ".join(parts)
+        return self.vendor if not parts else " ".join(parts)
 
     def _before_cur_exec(
         self, conn, cursor, statement, params, context, _executemany
@@ -274,9 +269,7 @@ def _get_attributes_from_cursor(vendor, cursor, attrs):
             return attrs
 
         attrs[SpanAttributes.DB_NAME] = info.dbname
-        is_unix_socket = info.host and info.host.startswith("/")
-
-        if is_unix_socket:
+        if is_unix_socket := info.host and info.host.startswith("/"):
             attrs[SpanAttributes.NET_TRANSPORT] = NetTransportValues.UNIX.value
             if info.port:
                 # postgresql enforces this pattern on all socket names

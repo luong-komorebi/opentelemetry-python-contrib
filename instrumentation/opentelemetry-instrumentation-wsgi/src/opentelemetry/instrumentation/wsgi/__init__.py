@@ -269,9 +269,7 @@ class WSGIGetter(Getter[dict]):
         """
         environ_key = "HTTP_" + key.upper().replace("-", "_")
         value = carrier.get(environ_key)
-        if value is not None:
-            return [value]
-        return None
+        return [value] if value is not None else None
 
     def keys(self, carrier):
         return [
@@ -301,8 +299,8 @@ def collect_request_attributes(environ):
     }
 
     host_port = environ.get("SERVER_PORT")
-    if host_port is not None and not host_port == "":
-        result.update({SpanAttributes.NET_HOST_PORT: int(host_port)})
+    if host_port is not None and host_port != "":
+        result[SpanAttributes.NET_HOST_PORT] = int(host_port)
 
     setifnotnone(result, SpanAttributes.HTTP_HOST, environ.get("HTTP_HOST"))
     target = environ.get("RAW_URI")
@@ -376,10 +374,7 @@ def collect_custom_response_headers_attributes(response_headers):
             OTEL_INSTRUMENTATION_HTTP_CAPTURE_HEADERS_SANITIZE_FIELDS
         )
     )
-    response_headers_dict = {}
-    if response_headers:
-        response_headers_dict = dict(response_headers)
-
+    response_headers_dict = dict(response_headers) if response_headers else {}
     return sanitize.sanitize_header_values(
         response_headers_dict,
         get_custom_headers(
@@ -398,24 +393,24 @@ def _parse_status_code(resp_status):
 
 
 def _parse_active_request_count_attrs(req_attrs):
-    active_requests_count_attrs = {}
-    for attr_key in _active_requests_count_attrs:
-        if req_attrs.get(attr_key) is not None:
-            active_requests_count_attrs[attr_key] = req_attrs[attr_key]
-    return active_requests_count_attrs
+    return {
+        attr_key: req_attrs[attr_key]
+        for attr_key in _active_requests_count_attrs
+        if req_attrs.get(attr_key) is not None
+    }
 
 
 def _parse_duration_attrs(req_attrs):
-    duration_attrs = {}
-    for attr_key in _duration_attrs:
-        if req_attrs.get(attr_key) is not None:
-            duration_attrs[attr_key] = req_attrs[attr_key]
-    return duration_attrs
+    return {
+        attr_key: req_attrs[attr_key]
+        for attr_key in _duration_attrs
+        if req_attrs.get(attr_key) is not None
+    }
 
 
 def add_response_attributes(
     span, start_response_status, response_headers
-):  # pylint: disable=unused-argument
+):    # pylint: disable=unused-argument
     """Adds HTTP response attributes to span using the arguments
     passed to a PEP3333-conforming start_response callable.
     """
@@ -429,7 +424,7 @@ def add_response_attributes(
         span.set_status(
             Status(
                 StatusCode.ERROR,
-                "Non-integer HTTP status: " + repr(status_code),
+                f"Non-integer HTTP status: {repr(status_code)}",
             )
         )
     else:
@@ -573,8 +568,7 @@ def _end_span_after_iterating(iterable, span, token):
         with trace.use_span(span):
             yield from iterable
     finally:
-        close = getattr(iterable, "close", None)
-        if close:
+        if close := getattr(iterable, "close", None):
             close()
         span.end()
         if token is not None:
